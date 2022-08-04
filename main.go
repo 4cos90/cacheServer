@@ -51,7 +51,7 @@ func getCache(cache cacheServer.CacheServer) func(w http.ResponseWriter, r *http
 	fmt.Printf("getCache Success\n")
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := GetUrlArg(r, "key")
-		fmt.Fprintf(w, "Cache Key:%s,%v", key, cache.Get(key))
+		fmt.Fprintf(w, "Cache Key:%s,%v \n", key, cache.Get(key))
 	}
 }
 

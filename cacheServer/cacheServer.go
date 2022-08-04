@@ -22,7 +22,7 @@ type CacheServer interface {
 	GetAll() []messageCache
 }
 
-func (s *cache) GetAll() []messageCache {
+func (s *cache) clearOutTimeCache() {
 	for startindex := 0; startindex < len(s.Cache); startindex++ {
 		if time.Now().Sub(s.Cache[startindex].time) < s.Timeout {
 			s.Cache = s.Cache[startindex:]
@@ -31,18 +31,15 @@ func (s *cache) GetAll() []messageCache {
 			s.Cache = make([]messageCache, 0)
 		}
 	}
+}
+
+func (s *cache) GetAll() []messageCache {
+	s.clearOutTimeCache()
 	return s.Cache
 }
 
 func (s *cache) Get(key string) []messageCache {
-	for startindex := 0; startindex < len(s.Cache); startindex++ {
-		if time.Now().Sub(s.Cache[startindex].time) < s.Timeout {
-			s.Cache = s.Cache[startindex:]
-			break
-		} else if startindex == (len(s.Cache) - 1) {
-			s.Cache = make([]messageCache, 0)
-		}
-	}
+	s.clearOutTimeCache()
 	rlt := make([]messageCache, 1)
 	newCache := make([]messageCache, 1)
 	for i := 0; i < len(s.Cache); i++ {
@@ -56,11 +53,12 @@ func (s *cache) Get(key string) []messageCache {
 	return rlt
 }
 
-func (s *cache) Set(receiver string, message string, time time.Time) error {
+func (s *cache) Set(receiver string, message string, sendtime time.Time) error {
+	s.clearOutTimeCache()
 	value := messageCache{
 		receiver: receiver,
 		message:  message,
-		time:     time,
+		time:     sendtime,
 	}
 	s.Cache = append(s.Cache, value)
 	return nil
